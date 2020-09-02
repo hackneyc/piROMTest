@@ -1,4 +1,12 @@
 # piROMTest
+This script utilizes the information in /opt/retropie/configs/*SYSTEM*/emulators.cfg to execute the ROM's located
+in /home/pi/RetroPie/roms/*SYSTEM*. Where *SYSTEM* is one of the supported RetroPie systems, i.e. arcade, fba, etc. 
+
+The script starts the specified CORE in background, sleeps for 5 seconds to wait for it to run, and then attempts
+to kill it. If the kill is successful the emulator was running the ROM. If the kill failed, the emulator quit due
+to an error. Using this logic, Pass or Fail is output to the terminal. For the moment ROM files are assumed to have
+a .zip extension.
+
 ```
 Usage: ./piROMTest -s SYSTEM [-c CORE] [OPTIONS]
 
@@ -20,4 +28,7 @@ of core names supported by the SYSTEM.
 
 OPTIONS
         -v      Use verbose logging when running the cores.
+
+WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause
+multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.
 ```
