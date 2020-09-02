@@ -32,3 +32,23 @@ OPTIONS
 WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause
 multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.
 ```
+Below are some usage examples...
+```
+$ ./piROMTest -s arcade -c lrfbneo
+System : arcade
+Core   : lrfbneo
+ROM's  : /home/pi/RetroPie/roms/arcade
+Cmdline: /opt/retropie/emulators/retroarch/bin/retroarch -L /opt/retropie/libretrocores/lr-fbneo/fbneo_libretro.so --config /opt/retropie/configs/arcade/retroarch.cfg %s
+
+Testing ROM's:
+xxx0.zip         - Pass
+xxx1.zip         - Pass
+xxxxxx2.zip      - Pass
+xxx3.zip         - Fail
+
+$ ./piROMTest -s arcade
+The following cores are supported for this SYSTEM:
+lrfbneo
+lrfbneoneocd
+lrmame2003
+```
