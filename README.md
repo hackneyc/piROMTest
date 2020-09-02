@@ -34,6 +34,12 @@ multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.
 ```
 Below are some usage examples...
 ```
+$ ./piROMTest -s arcade
+The following cores are supported for this SYSTEM:
+lrfbneo
+lrfbneoneocd
+lrmame2003
+
 $ ./piROMTest -s arcade -c lrfbneo
 System : arcade
 Core   : lrfbneo
@@ -45,10 +51,4 @@ xxx0.zip         - Pass
 xxx1.zip         - Pass
 xxxxxx2.zip      - Pass
 xxx3.zip         - Fail
-
-$ ./piROMTest -s arcade
-The following cores are supported for this SYSTEM:
-lrfbneo
-lrfbneoneocd
-lrmame2003
 ```
