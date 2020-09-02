@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function displayHelp {
-	printf "Usage: %s -s SYSTEM -c CORE [OPTIONS]\n\n" $0
+	printf "Usage: %s -s SYSTEM [-c CORE] [OPTIONS]\n\n" $0
 	printf "    Attempt to run each ROM for the given SYSTEM and CORE and output a Pass/Fail status.\n"
 	printf "This script does not prove the specified ROM runs correctly, just that the specified\n"
 	printf "CORE can run it. It is assumed SYSTEM configs are under /opt/retropie/configs and\n"
@@ -20,6 +20,9 @@ function displayHelp {
 	printf "\n"
 	printf "OPTIONS\n"
 	printf "\t-v\tUse verbose logging when running the cores.\n"
+	printf "\n"
+	printf "WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause\n"
+	printf "multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.\n"
 	printf "\n"
 }
 
