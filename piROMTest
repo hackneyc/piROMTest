@@ -1,21 +1,103 @@
 #!/bin/bash
 
-system="arcade"
-core="lrfbneo"
+function displayHelp {
+	printf "Usage: %s -s SYSTEM -c CORE [OPTIONS]\n\n" $0
+	printf "    Attempt to run each ROM for the given SYSTEM and CORE and output a Pass/Fail status.\n"
+	printf "This script does not prove the specified ROM runs correctly, just that the specified\n"
+	printf "CORE can run it. It is assumed SYSTEM configs are under /opt/retropie/configs and\n"
+	printf "ROM's are under /home/pi/RetroPie/roms. For best results execute this script from an\n"
+	printf "ssh session as the console will be used for the ROM display.\n"
+	printf "\n"
+	printf "SYSTEM\n"
+	printf "    RetroPie system name. The following are supported:\n"
+	printf "\tarcade - Configuration files located under /opt/retropie/configs/arcade\n"
+	printf "\tfba - Configuration files located under /opt/retropie/configs/fba\n"
+	printf "\tmame-libretro - Configuration files located under /opt/retropie/configs/mame-libretro\n"
+	printf "\n"
+	printf "CORE\n"
+	printf "    SYSTEM dependent core name. Omit the -c option from the command line to see a list\n"
+	printf "of core names supported by the SYSTEM.\n"
+	printf "\n"
+	printf "OPTIONS\n"
+	printf "\t-v\tUse verbose logging when running the cores.\n"
+	printf "\n"
+}
+
+system=""
+core=""
+verbose=0
+
+if [ $# == 0 ]
+then
+	displayHelp
+	exit
+fi
+
+# Process command line parameters
+while [ "$1" != "" ]
+do
+        arg=$1
+
+        case $arg in
+                -v)
+			verbose=1
+                        shift
+                        ;;
+                -s)
+                        shift
+                        system="$1"
+                        shift
+                        ;;
+                -c)
+                        shift
+                        core="$1"
+                        shift
+                        ;;
+                -h)
+                        displayHelp
+                        exit
+                        ;;
+                *)
+                        echo "$arg   :    Unknown parameter."
+                        exit
+                        ;;
+        esac
+done
+
+if [ "$system" == "" ]
+then
+	printf "ERROR: You must specify a SYSTEM\n"
+	exit
+elif [ ! -e /opt/retropie/configs/$system/emulators.cfg ]
+then
+	printf "ERROR: Could not find emulators.cfg under /opt/retropie/configs/$system\n"
+	exit
+fi
 
 # Manipulate the emulators.cfg file for the given system so we can source it.
 awk '{ gsub("-", "", $1) } 1' FS='=' OFS='=' /opt/retropie/configs/$system/emulators.cfg > emulators.tmp
 awk '{ gsub(" ", "", $1) } 1' FS='"' OFS='"' emulators.tmp > emulators.tmp1
-cat emulators.tmp1 | sed s/%ROM%/%s/ > emulators.sh
+if [ $verbose == 0 ]
+then
+	cat emulators.tmp1 | sed s/%ROM%/%s/ > emulators.sh
+else
+	cat emulators.tmp1 | sed "s/%ROM%/-v %s/" > emulators.sh
+fi
 rm emulators.tmp emulators.tmp1
-source emulators.sh
 
-# Replace %ROM% with %s so we can insert the full ROM path later
-cmdLine=`echo ${!core} | sed "s/%ROM%/%s/"`
+if [ "$core" == "" ]
+then
+	printf "The following cores are supported for this SYSTEM:\n"
+	cat emulators.sh | sed s/=.*// | sed s/default// | sed /^$/d
+	exit
+fi
+
+source emulators.sh
 
 echo "System : $system"
 echo "Core   : $core"
-echo "Cmdline: $cmdLine"
+echo "ROM's  : /home/pi/RetroPie/roms/$system"
+echo "Cmdline: ${!core}"
 echo
 echo "Testing ROM's:"
 
@@ -26,7 +108,7 @@ do
 	printf "%-016s - " $rom
 
 	# Create the command line for the given core by adding in the ROM file name
-	printf -v cmd "$cmdLine" $file
+	printf -v cmd "${!core}" $file
 
 	# Run the core in background so this script can continue to run
 	$cmd &
