@@ -1,0 +1,50 @@
+#!/bin/bash
+
+system="arcade"
+core="lrfbneo"
+
+# Manipulate the emulators.cfg file for the given system so we can source it.
+awk '{ gsub("-", "", $1) } 1' FS='=' OFS='=' /opt/retropie/configs/$system/emulators.cfg > emulators.tmp
+awk '{ gsub(" ", "", $1) } 1' FS='"' OFS='"' emulators.tmp > emulators.tmp1
+cat emulators.tmp1 | sed s/%ROM%/%s/ > emulators.sh
+rm emulators.tmp emulators.tmp1
+source emulators.sh
+
+# Replace %ROM% with %s so we can insert the full ROM path later
+cmdLine=`echo ${!core} | sed "s/%ROM%/%s/"`
+
+echo "System : $system"
+echo "Core   : $core"
+echo "Cmdline: $cmdLine"
+echo
+echo "Testing ROM's:"
+
+for file in `ls -1 /home/pi/RetroPie/roms/$system/*.zip`
+do
+	# Strip the path from the ROM name
+	rom=`basename $file`
+	printf "%-016s - " $rom
+
+	# Create the command line for the given core by adding in the ROM file name
+	printf -v cmd "$cmdLine" $file
+
+	# Run the core in background so this script can continue to run
+	$cmd &
+
+	# Capture the PID of the core process
+	pid=$!
+
+	# Wait for the game to start for fail. 5 seconds should be enough.
+	sleep 5
+
+	# Try to kill the core process. If this fails, it wasn't running
+	kill $pid > /dev/null 2>&1
+
+	if [ $? != 0 ]
+	then
+		printf "Fail\n"
+	else
+		printf "Pass\n"
+	fi
+done
+
