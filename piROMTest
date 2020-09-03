@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function displayHelp {
-	printf "Usage: %s -s SYSTEM [-c CORE] [OPTIONS]\n\n" $0
+	printf "Usage: %s -s SYSTEM [OPTIONS]\n\n" $0
 	printf "    Attempt to run each ROM for the given SYSTEM and CORE and output a Pass/Fail status.\n"
 	printf "This script does not prove the specified ROM runs correctly, just that the specified\n"
 	printf "CORE can run it. It is assumed SYSTEM configs are under /opt/retropie/configs and\n"
@@ -14,21 +14,41 @@ function displayHelp {
 	printf "\tfba - Configuration files located under /opt/retropie/configs/fba\n"
 	printf "\tmame-libretro - Configuration files located under /opt/retropie/configs/mame-libretro\n"
 	printf "\n"
-	printf "CORE\n"
-	printf "    SYSTEM dependent core name. Omit the -c option from the command line to see a list\n"
-	printf "of core names supported by the SYSTEM.\n"
-	printf "\n"
 	printf "OPTIONS\n"
 	printf "\t-v\tUse verbose logging when running the cores.\n"
+	printf "\t-l\tList the supported cores for the specified system.\n"
+	printf "\t-c CORE\tForce the core used for all ROM's. If this option is not specified, the\n"
+	printf "\t\tdefault core for the system will be used.\n"
 	printf "\n"
 	printf "WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause\n"
 	printf "multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.\n"
 	printf "\n"
 }
 
+function getEmulators {
+
+	# Manipulate the emulators.cfg file for the given system so we can source it.
+	awk '{ gsub("-", "", $1) } 1' FS='=' OFS='=' /opt/retropie/configs/$1/emulators.cfg > emulators.tmp
+	awk '{ gsub(" ", "", $1) } 1' FS='"' OFS='"' emulators.tmp > emulators.tmp1
+	if [ $verbose == 0 ]
+	then
+		cat emulators.tmp1 | sed s/%ROM%/%s/ > emulators.sh
+	else
+		cat emulators.tmp1 | sed "s/%ROM%/-v %s/" > emulators.sh
+	fi
+	rm emulators.tmp emulators.tmp1
+
+	source emulators.sh
+
+	# Remove any dashes from the name of the default core
+	# We can't do this above because the dash is on the right side of the =
+	default=`echo $default | tr -d "-"`
+}
+
 system=""
-core=""
+core="Auto"
 verbose=0
+listCores=0
 
 if [ $# == 0 ]
 then
@@ -56,6 +76,10 @@ do
                         core="$1"
                         shift
                         ;;
+		-l)
+                        shift
+			listCores=1;
+			;;
                 -h)
                         displayHelp
                         exit
@@ -77,41 +101,51 @@ then
 	exit
 fi
 
-# Manipulate the emulators.cfg file for the given system so we can source it.
-awk '{ gsub("-", "", $1) } 1' FS='=' OFS='=' /opt/retropie/configs/$system/emulators.cfg > emulators.tmp
-awk '{ gsub(" ", "", $1) } 1' FS='"' OFS='"' emulators.tmp > emulators.tmp1
-if [ $verbose == 0 ]
-then
-	cat emulators.tmp1 | sed s/%ROM%/%s/ > emulators.sh
-else
-	cat emulators.tmp1 | sed "s/%ROM%/-v %s/" > emulators.sh
-fi
-rm emulators.tmp emulators.tmp1
-
-if [ "$core" == "" ]
+if [ $listCores != 0 ]
 then
 	printf "The following cores are supported for this SYSTEM:\n"
-	cat emulators.sh | sed s/=.*// | sed s/default// | sed /^$/d
+	cat /opt/retropie/configs/$system/emulators.sh | sed s/=.*// | sed /^$/d | sed s/-//g
 	exit
 fi
 
-source emulators.sh
+getEmulators $system
+
+# If "default" was specified for the core, get the value of the default core from emulators.sh
+if [ "$core" == "default" ]
+then
+	core=$default
+fi
 
 echo "System : $system"
 echo "Core   : $core"
 echo "ROM's  : /home/pi/RetroPie/roms/$system"
-echo "Cmdline: ${!core}"
+if [ "$core" != "Auto" ]
+then
+	echo "CmdLine: ${!core}"
+else
+	echo "CmdLine: Auto"
+fi
 echo
 echo "Testing ROM's:"
 
 for file in `ls -1 /home/pi/RetroPie/roms/$system/*.zip`
 do
-	# Strip the path from the ROM name
-	rom=`basename $file`
-	printf "%-016s - " $rom
+	# Strip the path and suffix from the ROM name
+	rom=`basename -s .zip $file`
 
-	# Create the command line for the given core by adding in the ROM file name
-	printf -v cmd "${!core}" $file
+	if [ "$core" == "Auto" ]
+	then
+		# Search for $system_$rom in /opt/retropie/configs/all/emulators.cfg
+		# If we can't find it, use the default for this system, otherwise
+		# use what we found.
+		# TODO
+		echo "ERROR: CORE not set!"
+		exit
+	else
+		printf "%-16s (%-8s) - " $rom $core
+		# Create the command line for the given core by adding in the ROM file name
+		printf -v cmd "${!core}" $file
+	fi
 
 	# Run the core in background so this script can continue to run
 	$cmd &
