@@ -13,6 +13,7 @@ a .zip extension.
 ## Limitations
 * All ROM's in the ROM directory are run on the same *CORE*
 * The delay after starting the *CORE* is fixed at 5 seconds
+* The ROM file extension is assumed to be .zip
 
 ## Usage
 ```
