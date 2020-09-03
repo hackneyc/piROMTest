@@ -10,6 +10,11 @@ to *kill* it. If the *kill* is successful the emulator was running the ROM. If t
 to an error. Using this logic, Pass or Fail is output to the terminal. For the moment ROM files are assumed to have
 a .zip extension.
 
+## Limitations
+* All ROM's in the ROM directory are run on the same *CORE*
+* The delay after starting the *CORE* is fixed at 5 seconds
+
+## Usage
 ```
 Usage: ./piROMTest -s SYSTEM [-c CORE] [OPTIONS]
 
