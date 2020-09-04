@@ -11,8 +11,6 @@ to an error. Using this logic, Pass or Fail is output to the terminal. For the m
 a .zip extension.
 
 ## Limitations
-* The delay after starting the *CORE* is fixed at 10 seconds
-  * Larger games take longer to load
 * The ROM file extension is assumed to be .zip
 * ROM filenames with spaces are not supported
 * Does not work with the Dreamcast emulator
@@ -29,15 +27,17 @@ ssh session as the console will be used for the ROM display.
 
 SYSTEM
     RetroPie system name. The following are supported:
-        arcade - Configuration files located under /opt/retropie/configs/arcade
-        fba - Configuration files located under /opt/retropie/configs/fba
-        mame-libretro - Configuration files located under /opt/retropie/configs/mame-libretro
+	arcade - Configuration files located under /opt/retropie/configs/arcade
+	fba - Configuration files located under /opt/retropie/configs/fba
+	mame-libretro - Configuration files located under /opt/retropie/configs/mame-libretro
 
 OPTIONS
-        -v      Use verbose logging when running the cores.
-        -l      List the supported cores for the specified system.
-        -c CORE Force the core used for all ROM's. If this option is not specified, the
-                default core for the system will be used.
+	-v	Use verbose logging when running the cores.
+	-l	List the supported cores for the specified system.
+	-c CORE	Force the core used for all ROM's. If this option is not specified, the
+		default core for the system will be used.
+	-d SEC	Change the emulator start delay to SEC seconds. If this option is not
+		specified, the default delay is 10 seconds.
 
 WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause
 multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.
@@ -58,8 +58,8 @@ ROM's  : /home/pi/RetroPie/roms/arcade
 Cmdline: Auto
 
 Testing ROM's:
-xxx0.zip         - Pass
-xxx1.zip         - Pass
-xxxxxx2.zip      - Pass
-xxx3.zip         - Fail
+xxx0.zip    (lrfbneo) - Pass
+xxx1.zip    (lrfbneo) - Pass
+xxxxxx2.zip (lrfbneo) - Pass
+xxx3.zip    (lrfbalpha2012) - Fail
 ```
