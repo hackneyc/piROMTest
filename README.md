@@ -11,13 +11,15 @@ to an error. Using this logic, Pass or Fail is output to the terminal. For the m
 a .zip extension.
 
 ## Limitations
-* All ROM's in the ROM directory are run on the same *CORE*
-* The delay after starting the *CORE* is fixed at 5 seconds
+* The delay after starting the *CORE* is fixed at 10 seconds
+  * Larger games take longer to load
 * The ROM file extension is assumed to be .zip
+* ROM filenames with spaces are not supported
+* Does not work with the Dreamcast emulator
 
 ## Usage
 ```
-Usage: ./piROMTest -s SYSTEM [-c CORE] [OPTIONS]
+Usage: ./piROMTest -s SYSTEM [OPTIONS]
 
     Attempt to run each ROM for the given SYSTEM and CORE and output a Pass/Fail status.
 This script does not prove the specified ROM runs correctly, just that the specified
@@ -31,29 +33,29 @@ SYSTEM
         fba - Configuration files located under /opt/retropie/configs/fba
         mame-libretro - Configuration files located under /opt/retropie/configs/mame-libretro
 
-CORE
-    SYSTEM dependent core name. Omit the -c option from the command line to see a list
-of core names supported by the SYSTEM.
-
 OPTIONS
         -v      Use verbose logging when running the cores.
+        -l      List the supported cores for the specified system.
+        -c CORE Force the core used for all ROM's. If this option is not specified, the
+                default core for the system will be used.
 
 WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause
 multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.
 ```
 Below are some usage examples...
 ```
-$ ./piROMTest -s arcade
+$ ./piROMTest -s arcade -l
 The following cores are supported for this SYSTEM:
 lrfbneo
 lrfbneoneocd
 lrmame2003
+default
 
-$ ./piROMTest -s arcade -c lrfbneo
+$ ./piROMTest -s arcade
 System : arcade
-Core   : lrfbneo
+Core   : Auto
 ROM's  : /home/pi/RetroPie/roms/arcade
-Cmdline: /opt/retropie/emulators/retroarch/bin/retroarch -L /opt/retropie/libretrocores/lr-fbneo/fbneo_libretro.so --config /opt/retropie/configs/arcade/retroarch.cfg %s
+Cmdline: Auto
 
 Testing ROM's:
 xxx0.zip         - Pass
