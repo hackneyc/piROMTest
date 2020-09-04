@@ -142,8 +142,11 @@ fi
 echo
 echo "Testing ROM's:"
 
-for file in `ls -1 /home/pi/RetroPie/roms/$system/*.zip`
+OIFS="$IFS"
+IFS=$'\n'
+for file in `ls --quoting-style=escape -1 /home/pi/RetroPie/roms/$system/*.zip`
 do
+	echo $file
 	# Strip the path and suffix from the ROM name
 	rom=`basename -s .zip $file`
 
@@ -168,8 +171,11 @@ do
 		printf -v cmd "${!core}" $file
 	fi
 
+	IFS="$OIFS"
 	# Run the core in background so this script can continue to run
-	$cmd &
+	echo $cmd
+	exec $cmd &
+	IFS=$'\n'
 
 	# Capture the PID of the core process
 	pid=$!
@@ -191,4 +197,5 @@ do
 	# Wait for the emulator to completly shutdown
 	sleep 3
 done
+IFS="$OIFS"
 
