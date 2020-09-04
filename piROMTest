@@ -28,8 +28,12 @@ function displayHelp {
 function getEmulators {
 
 	# Manipulate the emulators.cfg file for the given system so we can source it.
+	# Remove dashes (-) up to the equals (=) sign
 	awk '{ gsub("-", "", $1) } 1' FS='=' OFS='=' /opt/retropie/configs/$1/emulators.cfg > emulators.tmp
+	# Remove spaces up to the first quote (")
 	awk '{ gsub(" ", "", $1) } 1' FS='"' OFS='"' emulators.tmp > emulators.tmp1
+
+	# Replace %ROM% with %s for rom file name insertion later
 	if [ $verbose == 0 ]
 	then
 		cat emulators.tmp1 | sed s/%ROM%/%s/ > emulators.sh
@@ -41,15 +45,17 @@ function getEmulators {
 	source emulators.sh
 
 	# Remove any dashes from the name of the default core
-	# We can't do this above because the dash is on the right side of the =
+	# We can't do this above because the dash is on the right side of the equals (=) sign
 	default=`echo $default | tr -d "-"`
 }
 
+# Set initial values
 system=""
 core="Auto"
 verbose=0
 listCores=0
 
+# If no parameters are passed, display the help
 if [ $# == 0 ]
 then
 	displayHelp
@@ -104,7 +110,7 @@ fi
 if [ $listCores != 0 ]
 then
 	printf "The following cores are supported for this SYSTEM:\n"
-	cat /opt/retropie/configs/$system/emulators.sh | sed s/=.*// | sed /^$/d | sed s/-//g
+	cat /opt/retropie/configs/$system/emulators.cfg | sed s/=.*// | sed /^$/d | sed s/-//g
 	exit
 fi
 
@@ -139,10 +145,17 @@ do
 		# If we can't find it, use the default for this system, otherwise
 		# use what we found.
 		# TODO
-		echo "ERROR: CORE not set!"
-		exit
+		tmp=`grep "${system}_${rom} =" /opt/retropie/configs/all/emulators.cfg`
+		if [ "$tmp" != "" ]
+		then
+			tmp=`echo $tmp | sed "s/.* =//" | tr -d "-" | tr -d "\"" | tr -d " "`
+		else
+			tmp=$default
+		fi
+		printf "%-8s (%s) - " $rom $tmp
+		printf -v cmd "${!tmp}" $file
 	else
-		printf "%-16s (%-8s) - " $rom $core
+		printf "%-8s (%s) - " $rom $core
 		# Create the command line for the given core by adding in the ROM file name
 		printf -v cmd "${!core}" $file
 	fi
@@ -154,10 +167,11 @@ do
 	pid=$!
 
 	# Wait for the game to start for fail. 5 seconds should be enough.
-	sleep 5
+	sleep 10
 
 	# Try to kill the core process. If this fails, it wasn't running
-	kill $pid > /dev/null 2>&1
+	kill -s 2 $pid > /dev/null 2>&1
+
 
 	if [ $? != 0 ]
 	then
@@ -165,5 +179,8 @@ do
 	else
 		printf "Pass\n"
 	fi
+
+	# Wait for the emulator to completly shutdown
+	sleep 3
 done
 
