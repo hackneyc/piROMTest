@@ -19,6 +19,8 @@ function displayHelp {
 	printf "\t-l\tList the supported cores for the specified system.\n"
 	printf "\t-c CORE\tForce the core used for all ROM's. If this option is not specified, the\n"
 	printf "\t\tdefault core for the system will be used.\n"
+	printf "\t-d SEC\tChange the emulator start delay to SEC seconds. If this option is not\n"
+	printf "\t\tspecified, the default delay is 10 seconds.\n"
 	printf "\n"
 	printf "WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause\n"
 	printf "multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.\n"
@@ -54,6 +56,7 @@ system=""
 core="Auto"
 verbose=0
 listCores=0
+startDelay=10
 
 # If no parameters are passed, display the help
 if [ $# == 0 ]
@@ -85,6 +88,11 @@ do
 		-l)
                         shift
 			listCores=1;
+			;;
+		-d)
+			shift
+			startDelay=$1
+			shift
 			;;
                 -h)
                         displayHelp
@@ -167,7 +175,7 @@ do
 	pid=$!
 
 	# Wait for the game to start for fail. 5 seconds should be enough.
-	sleep 10
+	sleep $startDelay
 
 	# Try to kill the core process. If this fails, it wasn't running
 	kill -s 2 $pid > /dev/null 2>&1
