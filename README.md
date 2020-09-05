@@ -12,9 +12,9 @@ a .zip extension.
 
 ## Limitations
 * The ROM file extension is assumed to be .zip
-* ROM filenames with spaces are not supported
 * Does not work with the Dreamcast emulator
   * Something to do with an input redirection from /dev/null on the command line
+* Does not work with the SNES emulator
 
 ## Usage
 ```
