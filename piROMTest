@@ -48,7 +48,7 @@ function getEmulators {
 
 	# Remove any dashes from the name of the default core
 	# We can't do this above because the dash is on the right side of the equals (=) sign
-	default=`echo $default | tr -d "-"`
+	default=${default/-}
 }
 
 # Set initial values
@@ -186,16 +186,14 @@ do
 	# Try to kill the core process. If this fails, it wasn't running
 	kill -s 2 $pid > /dev/null 2>&1
 
-
 	if [ $? != 0 ]
 	then
 		printf "Fail\n"
 	else
 		printf "Pass\n"
 	fi
-
-	# Wait for the emulator to completly shutdown
-	sleep 3
+	# Wait for the process to exit
+	wait $pid > /dev/null 2>&1
 done
 IFS="$OIFS"
 
