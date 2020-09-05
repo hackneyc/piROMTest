@@ -35,13 +35,15 @@ SYSTEM
 OPTIONS
 	-v	Use verbose logging when running the cores.
 	-l	List the supported cores for the specified system.
-	-c CORE	Force the core used for all ROM's. If this option is not specified, the
-		default core for the system will be used.
-	-d SEC	Change the emulator start delay to SEC seconds. If this option is not
+	-c CORE	Use *CORE* for all ROM's. If this option is not specified, the
+		the script will attempt to find the user specified core for the ROM, if
+		a user specified core cannot be found, the default core for specified
+		system will be used.
+	-d SEC	Change the emulator start delay to *SEC* seconds. If this option is not
 		specified, the default delay is 10 seconds.
 
 WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause
-multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.
+multiple ROM's to fail. These ROM's should probably be moved to /home/pi/RetroPie/BIOS.
 ```
 Below are some usage examples...
 ```
