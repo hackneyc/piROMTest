@@ -144,11 +144,18 @@ echo "Testing ROM's:"
 
 OIFS="$IFS"
 IFS=$'\n'
-for file in `ls --quoting-style=escape -1 /home/pi/RetroPie/roms/$system/*.zip`
+for file in `ls -1 /home/pi/RetroPie/roms/$system/*.zip`
 do
-	echo $file
 	# Strip the path and suffix from the ROM name
 	rom=`basename -s .zip $file`
+
+	# Special handling for some cores
+	if [ "$system" == "nes" ]
+	then
+		unzip -o $file > /dev/null 2>&1
+		file=`basename $file`
+		file=${file/.zip/.nes}
+	fi
 
 	if [ "$core" == "Auto" ]
 	then
@@ -164,21 +171,19 @@ do
 			tmp=$default
 		fi
 		printf "%-8s (%s) - " $rom $tmp
-		printf -v cmd "${!tmp}" $file
+		cmd=${!tmp}
 	else
 		printf "%-8s (%s) - " $rom $core
-		# Create the command line for the given core by adding in the ROM file name
-		printf -v cmd "${!core}" $file
+		cmd=${!core}
 	fi
 
 	IFS="$OIFS"
 	# Run the core in background so this script can continue to run
-	echo $cmd
-	exec $cmd &
-	IFS=$'\n'
-
+	cmd=${cmd/\%s/\'${file}\'}
+	eval "$cmd &"
 	# Capture the PID of the core process
 	pid=$!
+	IFS=$'\n'
 
 	# Wait for the game to start for fail. 5 seconds should be enough.
 	sleep $startDelay
@@ -194,6 +199,11 @@ do
 	fi
 	# Wait for the process to exit
 	wait $pid > /dev/null 2>&1
+
+	if [ "$system" == "nes" ]
+	then
+		rm $file
+	fi
 done
 IFS="$OIFS"
 
