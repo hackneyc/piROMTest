@@ -24,13 +24,16 @@ Usage: ./piROMTest -s SYSTEM [OPTIONS]
 This script does not prove the specified ROM runs correctly, just that the specified
 CORE can run it. It is assumed SYSTEM configs are under /opt/retropie/configs and
 ROM's are under /home/pi/RetroPie/roms. For best results execute this script from an
-ssh session as the console will be used for the ROM display.
+ssh session as the console will be used for the ROM display. Be sure to exit all running
+emulators and frontends like *emulationstation*.
 
 SYSTEM
     RetroPie system name. The following are supported:
-	arcade - Configuration files located under /opt/retropie/configs/arcade
-	fba - Configuration files located under /opt/retropie/configs/fba
-	mame-libretro - Configuration files located under /opt/retropie/configs/mame-libretro
+	arcade
+	fba
+	mame-libretro
+	nes
+	snes
 
 OPTIONS
 	-v	Use verbose logging when running the cores.
