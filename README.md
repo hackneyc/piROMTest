@@ -12,9 +12,6 @@ a .zip extension.
 
 ## Limitations
 * The ROM file extension is assumed to be .zip
-* Does not work with the Dreamcast emulator
-  * Something to do with an input redirection from /dev/null on the command line
-* Does not work with the SNES emulator
 
 ## Usage
 ```
@@ -30,6 +27,7 @@ emulators and frontends like *emulationstation*.
 SYSTEM
     RetroPie system name. The following are supported:
 	arcade
+	dreamcast
 	fba
 	mame-libretro
 	nes
