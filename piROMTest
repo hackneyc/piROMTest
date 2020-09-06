@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function displayHelp {
 	printf "Usage: %s -s SYSTEM [OPTIONS]\n\n" $0
@@ -50,6 +50,8 @@ function getEmulators {
 	# We can't do this above because the dash is on the right side of the equals (=) sign
 	default=${default/-}
 }
+
+mkdir -p /tmp/retroarch
 
 # Set initial values
 system=""
@@ -149,14 +151,6 @@ do
 	# Strip the path and suffix from the ROM name
 	rom=`basename -s .zip $file`
 
-	# Special handling for some cores
-	if [ "$system" == "nes" ]
-	then
-		unzip -o $file > /dev/null 2>&1
-		file=`basename $file`
-		file=${file/.zip/.nes}
-	fi
-
 	if [ "$core" == "Auto" ]
 	then
 		# Search for $system_$rom in /opt/retropie/configs/all/emulators.cfg
@@ -179,7 +173,7 @@ do
 
 	IFS="$OIFS"
 	# Run the core in background so this script can continue to run
-	cmd=${cmd/\%s/\'${file}\'}
+	cmd=${cmd/\%s/\"${file}\"}
 	eval "$cmd &"
 	# Capture the PID of the core process
 	pid=$!
@@ -199,11 +193,6 @@ do
 	fi
 	# Wait for the process to exit
 	wait $pid > /dev/null 2>&1
-
-	if [ "$system" == "nes" ]
-	then
-		rm $file
-	fi
 done
 IFS="$OIFS"
 
