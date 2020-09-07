@@ -36,16 +36,8 @@ function getEmulators {
 	# Remove dashes (-) up to the equals (=) sign
 	awk '{ gsub("-", "", $1) } 1' FS='=' OFS='=' /opt/retropie/configs/$1/emulators.cfg > emulators.tmp
 	# Remove spaces up to the first quote (")
-	awk '{ gsub(" ", "", $1) } 1' FS='"' OFS='"' emulators.tmp > emulators.tmp1
-
-	# Replace %ROM% with %s for rom file name insertion later
-	if [ $verbose == 0 ]
-	then
-		cat emulators.tmp1 | sed s/%ROM%/%s/ > emulators.sh
-	else
-		cat emulators.tmp1 | sed "s/%ROM%/-v %s/" > emulators.sh
-	fi
-	rm emulators.tmp emulators.tmp1
+	awk '{ gsub(" ", "", $1) } 1' FS='"' OFS='"' emulators.tmp > emulators.sh
+	rm emulators.tmp
 
 	source emulators.sh
 
@@ -54,7 +46,6 @@ function getEmulators {
 	default=${default/-}
 }
 
-mkdir -p /tmp/retroarch
 
 # Set initial values
 system=""
@@ -62,6 +53,10 @@ core="Auto"
 verbose=0
 listCores=0
 startDelay=10
+cacheDir="/tmp/retroarch" # should match the cache directory configured in retroarch.cfg
+
+# Create the cache directory
+mkdir -p $cacheDir
 
 # If no parameters are passed, display the help
 if [ $# == 0 ]
@@ -73,9 +68,7 @@ fi
 # Process command line parameters
 while [ "$1" != "" ]
 do
-        arg=$1
-
-        case $arg in
+        case $1 in
                 -v)
 			verbose=1
                         shift
@@ -104,7 +97,7 @@ do
                         exit
                         ;;
                 *)
-                        echo "$arg   :    Unknown parameter."
+                        echo "$1   :    Unknown parameter."
                         exit
                         ;;
         esac
@@ -159,10 +152,10 @@ do
 		# Search for $system_$rom in /opt/retropie/configs/all/emulators.cfg
 		# If we can't find it, use the default for this system, otherwise
 		# use what we found.
-		# TODO
 		tmp=`grep "${system}_${rom} =" /opt/retropie/configs/all/emulators.cfg`
 		if [ "$tmp" != "" ]
 		then
+			# Strip everything left of "=" and remove dashes (-), quotes (") and spaces ( )
 			tmp=`echo $tmp | sed "s/.* =//" | tr -d "-" | tr -d "\"" | tr -d " "`
 		else
 			tmp=$default
@@ -175,14 +168,21 @@ do
 	fi
 
 	IFS="$OIFS"
+	# Add the ROM name into the command line
+	cmd=${cmd/\%ROM\%/\"${file}\"}
+	# Check for verbose logging
+	if [ $verbose != 0 ]
+	then
+		# This may only work for retroarch cores
+		cmd="$cmd --verbose"
+	fi
 	# Run the core in background so this script can continue to run
-	cmd=${cmd/\%s/\"${file}\"}
 	eval "$cmd &"
-	# Capture the PID of the core process
+	# Capture the PID of the background process
 	pid=$!
 	IFS=$'\n'
 
-	# Wait for the game to start for fail. 5 seconds should be enough.
+	# Wait for the ROM to start for fail.
 	sleep $startDelay
 
 	# Try to kill the core process. If this fails, it wasn't running
@@ -199,3 +199,5 @@ do
 done
 IFS="$OIFS"
 
+# Cleanup the cache directory
+rm -rf $cacheDir
