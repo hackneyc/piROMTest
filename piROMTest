@@ -16,7 +16,9 @@ function displayHelp {
 	printf "\tmame-libretro\n"
 	printf "\tmegadrive\n"
 	printf "\tnes\n"
+	printf "\tpsx\n"
 	printf "\tsnes\n"
+	printf "\tzxspectrum\n"
 	printf "\n"
 	printf "OPTIONS\n"
 	printf "\t-v\tUse verbose logging when running the cores (libretro cores only).\n"
@@ -24,6 +26,7 @@ function displayHelp {
 	printf "\t-c CORE\tForce CORE for all ROM's.\n"
 	printf "\t-d SEC\tChange the emulator start delay to SEC seconds. If this option is not\n"
 	printf "\t\tspecified, the default delay is 10 seconds.\n"
+	printf "\t-e EXT\tLook for ROM's with a .EXT extension instead of the default .zip\n"
 	printf "\n"
 	printf "WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause\n"
 	printf "multiple ROM's to fail. These ROM's should be moved to /home/pi/RetroPie/BIOS.\n"
@@ -43,11 +46,12 @@ function getEmulators {
 
 	# Remove any dashes from the name of the default core
 	# We can't do this above because the dash is on the right side of the equals (=) sign
-	default=${default/-}
+	default=`echo $default | tr -d "-"`
 }
 
 
 # Set initial values
+extension="zip"
 system=""
 core="Auto"
 verbose=0
@@ -90,6 +94,11 @@ do
 		-d)
 			shift
 			startDelay=$1
+			shift
+			;;
+		-e)
+			shift
+			extension=$1
 			shift
 			;;
                 -h)
@@ -142,10 +151,10 @@ echo "Testing ROM's:"
 
 OIFS="$IFS"
 IFS=$'\n'
-for file in `ls -1 /home/pi/RetroPie/roms/$system/*.zip`
+for file in `ls -1 /home/pi/RetroPie/roms/$system/*.$extension`
 do
 	# Strip the path and suffix from the ROM name
-	rom=`basename -s .zip $file`
+	rom=`basename -s .$extension $file`
 
 	if [ "$core" == "Auto" ]
 	then

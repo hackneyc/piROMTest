@@ -11,7 +11,7 @@ to an error. Using this logic, Pass or Fail is output to the terminal. For the m
 a .zip extension.
 
 ## Limitations
-* The ROM file extension is assumed to be .zip
+* None
 
 ## Usage
 ```
@@ -32,7 +32,9 @@ SYSTEM
 	mame-libretro
 	megadrive
 	nes
+	psx
 	snes
+	zxspectrum
 
 OPTIONS
 	-v	Use verbose logging when running the cores (libretro cores only).
@@ -43,6 +45,7 @@ OPTIONS
 		core for specified system will be used.
 	-d SEC	Change the emulator start delay to *SEC* seconds. If this option is not
 		specified, the default delay is 10 seconds.
+	-e EXT	Look for ROM's with a .EXT extension instead of the default .zip
 
 WARNING: Some ROM's which fail to run may be BIOS files. Removing them may cause
 multiple ROM's to fail. These ROM's should probably be moved to /home/pi/RetroPie/BIOS.
