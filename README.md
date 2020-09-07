@@ -30,16 +30,17 @@ SYSTEM
 	dreamcast
 	fba
 	mame-libretro
+	megadrive
 	nes
 	snes
 
 OPTIONS
-	-v	Use verbose logging when running the cores.
+	-v	Use verbose logging when running the cores (libretro cores only).
 	-l	List the supported cores for the specified system.
-	-c CORE	Use *CORE* for all ROM's. If this option is not specified, the
-		the script will attempt to find the user specified core for the ROM, if
-		a user specified core cannot be found, the default core for specified
-		system will be used.
+	-c CORE	Force *CORE* for all ROM's. If this option is not specified, the
+		the script will attempt to find the configuration specified core
+		for the ROM, if a user specified core cannot be found, the default
+		core for specified system will be used.
 	-d SEC	Change the emulator start delay to *SEC* seconds. If this option is not
 		specified, the default delay is 10 seconds.
 

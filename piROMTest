@@ -14,14 +14,14 @@ function displayHelp {
 	printf "\tdreamcast\n"
 	printf "\tfba\n"
 	printf "\tmame-libretro\n"
+	printf "\tmegadrive\n"
 	printf "\tnes\n"
 	printf "\tsnes\n"
 	printf "\n"
 	printf "OPTIONS\n"
-	printf "\t-v\tUse verbose logging when running the cores.\n"
+	printf "\t-v\tUse verbose logging when running the cores (libretro cores only).\n"
 	printf "\t-l\tList the supported cores for the specified system.\n"
-	printf "\t-c CORE\tForce the core used for all ROM's. If this option is not specified, the\n"
-	printf "\t\tdefault core for the system will be used.\n"
+	printf "\t-c CORE\tForce CORE for all ROM's.\n"
 	printf "\t-d SEC\tChange the emulator start delay to SEC seconds. If this option is not\n"
 	printf "\t\tspecified, the default delay is 10 seconds.\n"
 	printf "\n"
@@ -173,7 +173,7 @@ do
 	# Check for verbose logging
 	if [ $verbose != 0 ]
 	then
-		# This may only work for retroarch cores
+		# This only works for retroarch cores
 		cmd="$cmd --verbose"
 	fi
 	# Run the core in background so this script can continue to run
